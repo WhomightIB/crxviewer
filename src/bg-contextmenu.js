@@ -55,7 +55,7 @@
             // The options page only allows 'contextmenuPatterns' to be edited
             // if 'showContextMenu' is true, so assume that the menu is shown,
             // so we can just edit the menu item.
-            updateLinkMenu(changes.contextmenuPatterns.newValue, false);
+            updateLinkMenu(changes.contextmenuPatterns.newValue, true);
         }
     });
     // contextMenus are supposed to be stored once from onInstalled.
