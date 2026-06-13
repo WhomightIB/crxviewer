@@ -79,26 +79,31 @@
         // A relatively inexpensive check to see if the menu items have been
         // registered. Should certainly be less expensive than repeatedly
         // calling contextMenus.create unconditionally.
-        // In Chrome: contextMenus.update fails if the menu item already exists.
+        // In Chrome and Firefox 136+: contextMenus.update() raises an error if
+        // the menu item already exists.
 //#if FIREFOX
-        // In Firefox: contextMenus.update returns early without further
-        // validation if the menu item does not exist. If the menu item exists,
-        // validation is performed, including verifying that parentId is valid.
-        // parentId is invalid when it points to itself.
-        chrome.contextMenus.update(MENU_ID_DUMMY_NEVER_SHOWN, {
-            parentId: MENU_ID_DUMMY_NEVER_SHOWN,
-        }, function() {
-            // No error = menu does not exist, so it was not persisted before.
-            var hasPersistedMenu = !!chrome.runtime.lastError;
-            callback(hasPersistedMenu);
-        });
-//#else
+        // Use a different detection method for Firefox 135- because the method
+        // described above did not work until Firefox 136 (bugzil.la/1688743).
+        if (/Firefox\/1([12]\d|3[0-5])\./.test(navigator.userAgent)) {
+            // Until Firefox 136 (bugzil.la/1688743), contextMenus.update()
+            // returned early if a non-existing menu item was specified.
+            // If a menu item exists, the validity of parentId was checked.
+            // parentId is invalid when it points to itself.
+            chrome.contextMenus.update(MENU_ID_DUMMY_NEVER_SHOWN, {
+                parentId: MENU_ID_DUMMY_NEVER_SHOWN,
+            }, function() {
+                // No error = menu does not exist, so it was not persisted yet.
+                var hasPersistedMenu = !!chrome.runtime.lastError;
+                callback(hasPersistedMenu);
+            });
+            return;
+        }
+//#endif
         chrome.contextMenus.update(MENU_ID_DUMMY_NEVER_SHOWN, {}, function() {
             // Error = menu does not exist, so it was not persisted before.
             var hasPersistedMenu = !chrome.runtime.lastError;
             callback(hasPersistedMenu);
         });
-//#endif
     }
     function markMenuRegistrationCompleted() {
         // Create an invisible menu item. This persists across browser
