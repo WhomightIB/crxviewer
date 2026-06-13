@@ -67,9 +67,9 @@
     //   up again (MV3). This does not happen with event pages (MV2)...
     // - onInstalled does not fire if updated while disabled -
     //   crbug.com/388231 & bugzil.la/1700797
-    // - In Firefox, menu items disappear upon disabling, and coupled with the
+    // - In Firefox 127 and earlier, menu items disappear upon disabling
+    //   (bugzil.la/1771328 - fixed in Firefox 128). This bug coupled with the
     //   above lack of onInstalled, the menus are gone - bugzil.la/1817287
-    // - In Firefox 105 and earlier, menus did not persist in event pages.
     // As a work-around, register the menus unconditionally (once on startup).
     // To avoid too many contextMenus.create() calls, we only reset the menus
     // if it has not been registered before. We do so by using a dummy menu
@@ -105,20 +105,13 @@
         // restarts, but is cleared on extension updates.
         // Chrome: also cleared when the incognito session ends.
         // Firefox: cleared if extension is disabled and re-enabled.
-        var createProps = {
+        chrome.contextMenus.create({
             id: MENU_ID_DUMMY_NEVER_SHOWN,
             title: 'dummy',
             visible: false,
             contexts: ['audio'], // <-- Chosen for rarity.
             targetUrlPatterns: ['https://0.0.0.0/'], // Unresolvable URL.
-        };
-        try {
-            chrome.contextMenus.create(createProps);
-        } catch (e) {
-            // Firefox 62- doesn't support visible: bugzil.la/1482529
-            delete createProps.visible;
-            chrome.contextMenus.create(createProps);
-        }
+        });
     }
 
     isMenuRegistrationCompleted(function(hasPersistedMenu) {

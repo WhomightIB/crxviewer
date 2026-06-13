@@ -26,20 +26,15 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
 //#if FIREFOX
 /**
- * Logic to toggle visibility of  pageAction if needed.
+ * Logic to toggle visibility of pageAction if needed.
  *
  * By default, the extension wants to show a pageAction button on the (few)
  * websites that it recognizes as an extension store. The user can opt out of
  * this behavior, which is stored in storage.sync at the "showPageAction" key.
  *
- * Bugs relevant to page_action support:
- * Firefox < 59: did not support page_action.show_matches (bugzil.la/1419842).
- * Firefox < 61: did not reset pageAction in inactive tabs (bugzil.la/1439246).
- * Firefox < 89: Firefox 58+ had a menu option to toggle the visibility of the
- *               pageAction, but it was removed in 89. See bugzil.la/1712556
- *               and https://github.com/Rob--W/crxviewer/issues/41
- * Firefox < 106: did not support event pages: background page lived forever.
- * Firefox < 115: did not support storage.session.
+ * Firefox used to have a menu option to toggle the visibility of the pageAction
+ * but that was removed in Firefox 89, see bugzil.la/1712556
+ * and https://github.com/Rob--W/crxviewer/issues/41
  *
  * Implementation details:
  * - Register tabs.onUpdated at the top level, to detect relevant URLs.
@@ -49,16 +44,11 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
  *   by tabs.onUpdated).
  * - Register storage.onChanged to detect changes to the pref, to (un)register
  *   the tabs.onUpdated as needed, and show/hide existing pageAction buttons.
- *
- * To strike a balance between maintainability, performance and customizability,
- * ...
  */
 function tabsOnUpdatedCheckPageAction(tabId, changeInfo, tab) {
     showPageActionIfNeeded(tab);
 }
-//// In Firefox >= 59, we rely on page_action.show_matches.
-var hasStaticPageActionPatterns = !/Firefox\/5[0-8]\./.test(navigator.userAgent);
-var pageActionIsEnabled = hasStaticPageActionPatterns;
+var pageActionIsEnabled = true; // Default-enabled by page_action.show_matches.
 //// We immediately respond to tabs.onUpdated events to minimize the chance of
 //// tab.url getting out of sync. This event may trigger before we read the
 //// user's preference through storage.sync. Once we got the user's preference,
@@ -105,10 +95,11 @@ function unregisterTabsOnUpdatedForPageAction() {
     // event page after it has suspended (bugzil.la/1869125).
     chrome.tabs.onUpdated.removeListener(tabsOnUpdatedCheckPageAction);
 
-    // Technically the logic below is not needed in Firefox < 106 because the
-    // logic is only needed for event pages. But we don't bother with checking
-    // versions and returning early, because in the worst case the only result
-    // is scheduling one no-op alarm.
+    if (/Firefox\/1(1\d|2[0-7])\./.test(navigator.userAgent)) {
+        // bugzil.la/1869125 was fixed in Firefox 128.
+        return;
+    }
+
     hasLostPersistentListener = true;
     chrome.runtime.onSuspend.removeListener(wakeupSoonAfterSuspend);
 }
@@ -123,7 +114,6 @@ function wakeupSoonAfterSuspend() {
 }
 
 function togglePageAction(isEnabled) {
-    var didChange = pageActionIsEnabled !== isEnabled;
     pageActionIsEnabled = isEnabled;
     // Now that pageActionIsEnabled has been set to a value from a pref, we can
     // stop keeping track of new tabIds observed in tabs.onUpdated.
@@ -132,57 +122,32 @@ function togglePageAction(isEnabled) {
     const tabIdsToFixup = tabIdsBeforePageActionPrefRead;
     tabIdsBeforePageActionPrefRead = null;
 
-    if (!hasStaticPageActionPatterns) {
-        // page_action.show_matches not supported, we always need the listener
-        // if enabled. The button is hidden by default.
-        if (isEnabled) {
-            registerTabsOnUpdatedForPageAction();
-        } else {
-            unregisterTabsOnUpdatedForPageAction();
-        }
+    // page_action.show_matches is supported. We only need the listener to
+    // hide the button. The button is shown by default.
+    if (isEnabled) {
+        // The button is shown by default via page_action.show_matches.
+        unregisterTabsOnUpdatedForPageAction();
     } else {
-        // page_action.show_matches is supported. We only need the listener to
-        // hide the button. The button is shown by default.
-        if (isEnabled) {
-            unregisterTabsOnUpdatedForPageAction();
-        } else {
-            // Expected common case.
-            registerTabsOnUpdatedForPageAction();
-        }
+        // Need listener to hide (revert effect of page_action.show_matches).
+        // Expected common case.
+        registerTabsOnUpdatedForPageAction();
     }
 
     // Now determine whether there is a chance for existing tabs to have an
     // out-of-sync pageAction state, and update their visibility if needed.
-    if (chrome.storage.session) {
-        // Note: hasStaticPageActionPatterns is also true here.
-        chrome.storage.session.get({ showPageAction: true }, function(items) {
-            if (items.showPageAction === pageActionIsEnabled) {
-                // Effectively not changed - common case. Bail out.
-                // Fix the few tabs that may have used the hard-coded default
-                // before the first call to showPageActionIfNeeded.
-                if (tabIdsToFixup) {
-                    Array.from(tabIdsToFixup).forEach(fixupPageActionForTabId);
-                }
-                return;
+    chrome.storage.session.get({ showPageAction: true }, function(items) {
+        if (items.showPageAction === pageActionIsEnabled) {
+            // Effectively not changed - common case. Bail out.
+            // Fix the few tabs that may have used the hard-coded default
+            // before the first call to showPageActionIfNeeded.
+            if (tabIdsToFixup) {
+                Array.from(tabIdsToFixup).forEach(fixupPageActionForTabId);
             }
-            chrome.storage.session.set({ showPageAction: pageActionIsEnabled });
-            togglePageActionAcrossAllMatchingTabs();
-        });
-    } else if (didChange) {
-        // Uncommon case: when the user has set showPageAction to false.
-        // Before event page support (Firefox <= 105), the background page lives
-        // forever, so this logic executes only once, as desired.
-        // But with event page support and no storage.session support, this
-        // logic may run more often than ideal: whenever the event page awakes
-        // (Firefox versions: 106 <= Firefox version <= 114).
-        // (in Firefox 115+, storage.session is suppported, we never get here).
-        //
-        // This is because didChange relies on a global (pageActionIsEnabled),
-        // which defaults to a static boolean (hasStaticPageActionPatterns),
-        // independent of user preferences. The user preference is retrieved
-        // asynchronously.
+            return;
+        }
+        chrome.storage.session.set({ showPageAction: pageActionIsEnabled });
         togglePageActionAcrossAllMatchingTabs();
-    }
+    });
 }
 function fixupPageActionForTabId(tabId) {
     chrome.tabs.get(tabId, function(tab) {
@@ -238,11 +203,6 @@ chrome.storage.sync.get({
     showPageAction: true,
 }, function(items) {
     togglePageAction(items.showPageAction);
-
-    if (pageActionIsEnabled === hasStaticPageActionPatterns) {
-        // Preference matches the default, nothing to fix up.
-        return;
-    }
 });
 
 function showPageActionIfNeeded(tab) {
