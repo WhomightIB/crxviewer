@@ -1222,7 +1222,6 @@ function renderInitialViewFromUrlParams() {
     var qh = getParam('qh') === '1';
     // The nth search result to select (0 = none, 1 = first, etc.).
     var qi = parseInt(getParam('qi')) || 0;
-
     if (!q && !qf) return;
     var fileFilterElem = document.getElementById('file-filter');
     if (fileFilterElem.value && fileFilterElem.value !== q) {
@@ -1553,6 +1552,34 @@ var checkAndApplyFilter = (function() {
     fileFilterElem.addEventListener('input', function() {
         checkAndApplyFilter(true);
     });
+    fileFilterElem.addEventListener('change', function() {
+        updateUrlWithSearchQuery(this.value);
+    });
+
+    function updateUrlWithSearchQuery(query) {
+        // Do not update the URL if we are in a permalink view.
+        if (getParam('qf') || getParam('qb') || getParam('qh') || getParam('qi')) {
+            return;
+        }
+        var params = {};
+        var crx = getParam('crx');
+        if (!crx) {
+          // crx param may be missing if the user has not opened any file, or
+          // if the file picker was used. A permalink would not work for these.
+          return;
+        }
+        params.crx = crx;
+        var blob = getParam('blob');
+        if (blob) params.blob = blob;
+        var inside = getParam('inside[]');
+        if (inside) params.inside = inside;
+
+        if (query) {
+            params.q = query;
+        }
+        var newUrl = location.pathname + '?' + encodeQueryString(params);
+        history.replaceState(null, '', newUrl);
+    }
     fileFilterElem.form.onsubmit = function(e) {
         e.preventDefault();
         checkAndApplyFilter();
