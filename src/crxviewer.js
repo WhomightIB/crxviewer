@@ -616,6 +616,32 @@ var viewFileInfo = (function() {
             }
         }
     };
+    handlers.video = {
+        Writer: zip.Data64URIWriter,
+        callback: function(entry, data_url) {
+            var sourceToolbarElem = document.getElementById('source-toolbar');
+            sourceToolbarElem.appendChild(createDownloadLink(entry, data_url));
+            sourceToolbarElem.appendChild(createContentVerifier(entry));
+
+            var sourceCodeElem = document.getElementById('source-code');
+            sourceCodeElem.innerHTML = '<video controls>';
+            var video = sourceCodeElem.firstChild;
+            video.onloadeddata = function() {
+                renderVideoInfo('Width: ' + this.videoWidth + ' Height: ' + this.videoHeight + ' Duration: ' + this.duration + ' seconds');
+            };
+            video.onerror = function() {
+                renderVideoInfo('Failed to load video');
+            };
+            video.src = data_url;
+
+            function renderVideoInfo(text) {
+                if (sourceCodeElem.firstChild === video) {
+                    // The video is still being displayed.
+                    sourceToolbarElem.appendChild(document.createTextNode(' ' + text));
+                }
+            }
+        }
+    };
     handlers['application/java-archive'] =
     handlers['application/zip'] = {
         Writer: zip.BlobWriter,
