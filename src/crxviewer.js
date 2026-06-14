@@ -590,6 +590,32 @@ var viewFileInfo = (function() {
             }
         }
     };
+    handlers.audio = {
+        Writer: zip.Data64URIWriter,
+        callback: function(entry, data_url) {
+            var sourceToolbarElem = document.getElementById('source-toolbar');
+            sourceToolbarElem.appendChild(createDownloadLink(entry, data_url));
+            sourceToolbarElem.appendChild(createContentVerifier(entry));
+
+            var sourceCodeElem = document.getElementById('source-code');
+            sourceCodeElem.innerHTML = '<audio controls>';
+            var audio = sourceCodeElem.firstChild;
+            audio.onloadeddata = function() {
+                renderAudioInfo('Duration: ' + audio.duration + ' seconds');
+            };
+            audio.onerror = function() {
+                renderAudioInfo('Failed to load audio');
+            };
+            audio.src = data_url;
+
+            function renderAudioInfo(text) {
+                if (sourceCodeElem.firstChild === audio) {
+                  // The audio element is still being displayed.
+                  sourceToolbarElem.appendChild(document.createTextNode(' ' + text));
+                }
+            }
+        }
+    };
     handlers['application/java-archive'] =
     handlers['application/zip'] = {
         Writer: zip.BlobWriter,
