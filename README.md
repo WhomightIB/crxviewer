@@ -52,7 +52,7 @@ hosted elsewhere. Further, there is an option to show a contextmenu entry on lin
 is a Chromium extension. Both features can be toggled at the options page.
 
 ## Copyright
-(c) 2013 - 2023 Rob Wu <rob@robwu.nl> (https://robwu.nl/)
+(c) 2013 - 2026 Rob Wu <rob@robwu.nl> (https://robwu.nl/)
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
