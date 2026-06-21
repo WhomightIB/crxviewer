@@ -18,8 +18,11 @@
 
 (() => {
     let DOMAIN_FRONTS = new Map();
+    // Although the AMO API and XPI files are served with CORS headers
+    // ( https://github.com/Rob--W/crxviewer/issues/92 ), we still rely on this
+    // work-around for non-public XPI files, e.g. XPI submitted by developers
+    // and XPI files in the reviewer tools.
     DOMAIN_FRONTS.set('addons.mozilla.org', 'services.addons.mozilla.org');
-    DOMAIN_FRONTS.set('addons.cdn.mozilla.net', 'addons.cdn.mozilla.net.');
 
     const REQUEST_ID_HEADER = 'random-id-to-map-xhr-to-domain-fronter';
     let thisTabId = -1;
