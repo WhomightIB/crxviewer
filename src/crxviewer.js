@@ -1745,8 +1745,6 @@ function showAdvancedOpener() {
         var url = 'https://clients2.google.com/service/update2/crx?response=redirect';
         url += '&os=' + getCwsOption('os');
         url += '&arch=' + getCwsOption('arch');
-        url += '&os_arch=' + getCwsOption('arch');
-        url += '&nacl_arch=' + getCwsOption('nacl_arch');
         url += '&prod=chromiumcrx';
         url += '&prodchannel=unknown';
         url += '&prodversion=' + getCwsOption('prodversion');
@@ -1796,7 +1794,6 @@ function showAdvancedOpener() {
         setCwsOption('xid', extensionId);
         setOptionFromUrl('os');
         setOptionFromUrl('arch');
-        setOptionFromUrl('nacl_arch');
     }
     function maybeSaveBack() {
         var isExtensionId = /^[a-p]{32}$/.test(getCwsOption('xid'));
@@ -1945,7 +1942,6 @@ function showAdvancedOpener() {
     var platformInfo = getPlatformInfo();
     setCwsOption('os', platformInfo.os);
     setCwsOption('arch', platformInfo.arch);
-    setCwsOption('nacl_arch', platformInfo.nacl_arch);
     var prodversion = /Chrome\/(\d+\.\d+\.\d+\.\d+)/.exec(navigator.userAgent);
     prodversion = prodversion ? prodversion[1] : '52.0.2743.116';
     setCwsOption('prodversion', prodversion);

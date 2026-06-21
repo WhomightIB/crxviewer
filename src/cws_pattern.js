@@ -165,8 +165,6 @@ function get_crx_url(extensionID_or_url) {
     url = 'https://clients2.google.com/service/update2/crx?response=redirect';
     url += '&os=' + platformInfo.os;
     url += '&arch=' + platformInfo.arch;
-    url += '&os_arch=' + platformInfo.arch; // crbug.com/709147 - should be archName of chrome.system.cpu.getInfo
-    url += '&nacl_arch=' + platformInfo.nacl_arch;
     url += '&prod=' + product_id;
     url += '&prodchannel=' + product_channel;
     url += '&prodversion=' + product_version;

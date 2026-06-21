@@ -63,12 +63,7 @@ function getPlatformInfo() {
         console.warn('getPlatformInfoAsync() has not been called, using getPlatformInfoFallback()');
         return getPlatformInfoFallback();
     }
-    platformInfo = Object.assign({}, platformInfo);
-    // Firefox does not have nacl_arch.
-    if (!platformInfo.nacl_arch) {
-        platformInfo.nacl_arch = getPlatformInfoFallback().nacl_arch;
-    }
-    return platformInfo;
+    return Object.assign({}, platformInfo);
 }
 
 
@@ -122,6 +117,6 @@ function getPlatformInfoFallback() {
     return {
         os: os,
         arch: arch,
-        nacl_arch: arch
+        // nacl_arch is deprecated; we don't use it and don't include it.
     };
 }
