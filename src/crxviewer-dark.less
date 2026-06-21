@@ -2,6 +2,10 @@
 // (potentially nested). The order is preserved as much as possible.
 // To avoid repetition of non-color values, "-color" is used where needed.
 
+html {
+    color: #eee;
+}
+
 //
 // crxviewer.less
 //
@@ -68,11 +72,8 @@ footer {
             background-color: #346;
         }
         .file-path {
-            .file-dir {
-                color: #BBB;
-                &:hover {
-                    color: CanvasText;
-                }
+            .file-dir:not(:hover) {
+                color: #A8A8A8;
             }
         }
     }
