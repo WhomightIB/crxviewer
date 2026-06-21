@@ -1,0 +1,120 @@
+// This file lists every color as the base stylesheets, with the same selectors
+// (potentially nested). The order is preserved as much as possible.
+// To avoid repetition of non-color values, "-color" is used where needed.
+
+//
+// crxviewer.less
+//
+#top-bar {
+    border-bottom-color: #DDD;
+    #file-filter {
+        border-color: #AAA;
+        color: #444;
+        &:focus {
+            border-color: rgb(77, 144, 254);
+        }
+        &.invalid {
+            background-color: #FEE;
+        }
+    }
+    label {
+        background: white;
+        &:hover {
+            outline-color: rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+.site-specific-form {
+    > div:hover {
+        background-color: #F5F5F5;
+    }
+    label {
+        &:hover, &:active {
+            background-color: #ddd;
+        }
+    }
+    input:invalid {
+        outline-color: red;
+    }
+}
+#left-panel {
+    background-color: #FFF;
+    & > .resizer {
+        background-color: #DDD;
+        &:hover {
+            background-color: #AAA;
+        }
+    }
+}
+footer {
+    border-top-color: #ccf;
+}
+.toggler {
+    border-color: transparent;
+    border-right-color: rgba(0,0,0,0.5);
+    &:hover {
+        border-right-color: #000;
+    }
+    .toggled & {
+        border-left-color: black;
+    }
+}
+#file-list {
+    li {
+        &:hover {
+            background-color: rgba(99,99,99,0.2);
+        }
+        &.active {
+            background-color: rgba(99,99,99,0.3);
+        }
+        &.file-selected {
+            background-color: #def;
+        }
+        .file-path {
+            .file-dir {
+                color: #888;
+                &:hover {
+                    color: #000;
+                }
+            }
+        }
+    }
+}
+#total-size {
+    border-top-color: black;
+}
+.file-specific-toolbar {
+    .find-all-enabled {
+        color: red;
+        // Same style as .search-result-highlight in search-tools.less to help
+        // users with getting familiar with the look of highlighted results.
+        outline-color: orange;
+        background-color: rgba(255, 255, 100, 0.3);
+    }
+}
+.file-specific-download-link {
+    &:not([href]) {
+        border-bottom-color: currentColor;
+    }
+}
+.content-verifier-wrapper {
+    .content-verifier-output {
+        background: white;
+        border-color: #ccf;
+    }
+}
+img:hover {
+    outline-color: rgba(200, 200, 200, 0.5);
+}
+
+//
+// search-tools.less
+//
+.search-result-highlight {
+    stroke: orange;
+    fill: rgba(255, 255, 100, 0.3);
+}
+.search-result-match {
+    stroke: red;
+    fill: transparent;
+}
