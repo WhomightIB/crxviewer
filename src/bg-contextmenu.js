@@ -213,6 +213,7 @@
         chrome.tabs.create({
             url: chrome.runtime.getURL('crxviewer.html') + '?' + params,
             active: true,
+            windowId: tab ? tab.windowId : undefined,
             index: tab ? tab.index + 1 : undefined,
 //#if FIREFOX
             cookieStoreId: tab ? tab.cookieStoreId : undefined,

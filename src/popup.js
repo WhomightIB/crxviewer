@@ -152,13 +152,15 @@ function doViewSource() {
         active: true,
         lastFocusedWindow: true,
     }, function(tabs) {
+        var tab = tabs && tabs[0];
         chrome.tabs.create({
             url: chrome.runtime.getURL('crxviewer.html') +
                 '?' + encodeQueryString({crx: crx_url, zipname: filename}),
             active: true,
-            index: tabs && tabs.length ? tabs[0].index + 1 : undefined,
+            windowId: tab ? tab.windowId : undefined,
+            index: tab ? tab.index + 1 : undefined,
 //#if FIREFOX
-            cookieStoreId: tabs && tabs[0] && tabs[0].cookieStoreId,
+            cookieStoreId: tab && tab.cookieStoreId,
 //#endif
         }, function() {
             window.close();
