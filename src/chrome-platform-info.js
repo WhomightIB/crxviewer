@@ -114,6 +114,9 @@ function getPlatformInfoFallback() {
     } else {
         arch = 'x86-32';
     }
+    // Note: arm64, mips, mips64, riscv64 are also possible PlatformArch values in
+    // https://developer.chrome.com/docs/extensions/reference/api/runtime#type-PlatformArch
+    // but it is difficult to detect these, so we don't even try.
     return {
         os: os,
         arch: arch,
