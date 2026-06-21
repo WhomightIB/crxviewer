@@ -1943,7 +1943,7 @@ function showAdvancedOpener() {
     setCwsOption('os', platformInfo.os);
     setCwsOption('arch', platformInfo.arch);
     var prodversion = /Chrome\/(\d+\.\d+\.\d+\.\d+)/.exec(navigator.userAgent);
-    prodversion = prodversion ? prodversion[1] : '52.0.2743.116';
+    prodversion = prodversion ? prodversion[1] : '9999.0.9999.0';
     setCwsOption('prodversion', prodversion);
 
     maybeToggleWebStore();
