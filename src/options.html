@@ -10,8 +10,17 @@
 <!-- Only for optionsV2 pages -->
 <base target="_blank">
 <meta charset="utf-8">
+<meta name="color-scheme" content="dark light">
+<meta name="viewport" content="width=device-width">
 <title>CRX Viewer options</title>
 <style>
+/* Work-around for Firefox before 127 - bugzil.la/1888866 */
+@media (prefers-color-scheme: dark) {
+    html, body {
+        background: Canvas;
+        color: CanvasText;
+    }
+}
 body {
     margin: 2em 3em;
 }
