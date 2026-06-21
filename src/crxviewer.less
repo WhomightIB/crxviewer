@@ -31,7 +31,6 @@ body {
 #top-bar {
     @fileFilterWidth: 300px;
     @barPadding: 0.2rem;
-    display: -webkit-flex;
     display: flex;
     width: 100%;
     height: @topBarHeight;
@@ -67,9 +66,7 @@ body {
     }
     label {
         vertical-align: middle;
-        display: -webkit-inline-flex;
         display: inline-flex;
-        -webkit-flex-wrap: wrap;
         flex-wrap: wrap;
         // This weird play with negative margins is to make sure that there is some
         // visible padding when the labels overflow to the next line.
@@ -85,7 +82,6 @@ body {
 
         // The meaning of the checkbox, displayed above the checkbox.
         .filter-label-description {
-            -webkit-flex: 0 0 100%;
             flex: 0 0 100%;
             order: 1;
             font-size: 0.7rem;
@@ -96,7 +92,6 @@ body {
         // file counter at the right (gcount is inserted by JS).
         input[data-filter-type],
         .gcount {
-            -webkit-flex: 0 0 auto;
             flex: 0 0 auto;
             order: 2;
             margin: 0;
@@ -115,7 +110,6 @@ body {
         }
     }
     #file-filter-feedback {
-        -webkit-flex: 1;
         flex: 1;
     }
     & > a[href] {
@@ -128,7 +122,6 @@ body {
 
 #advanced-open {
     display: none;
-    height: -webkit-calc(100% - ((@topBarHeight + @footerHeight)));
     height: calc(100% - ((@topBarHeight + @footerHeight)));
     text-align: center;
     padding: 2rem 1rem 0;
@@ -195,7 +188,6 @@ body {
     }
 }
 #right-panel, #left-panel {
-    height: -webkit-calc(100% - @topBarHeight);
     height: calc(100% - @topBarHeight);
 }
 #right-panel {
